@@ -1,0 +1,31 @@
+version: '3' #version 3 of docker compose
+
+services:
+  backend:
+    image: registry.gitlab.propulsion-home.ch/full-stack/batch-28-may-2024/motion-backend-assignment/group-2:latest #Image that is stored in my gitlab
+    tty: true
+    #open port 8000 on the machine side (left) and on the container side (right)
+    ports:
+      - '8000:8000'
+    # volumes guarantee that backend folder gets mirrored between my local IDE directory and the container
+    volumes:
+      - ./backend:/backend
+    env_file: #Links to env_file. VERY important, otherwise postgres and backend can't communicate
+      - ./env/dev.env
+#    command: "python manage.py runserver 0:8000" # -> Starts the server, when container is starting
+    command: "sh /scripts/dev.sh" # Starts container and keeps it running but doesn't start the server
+    depends_on:
+      - postgres
+
+  postgres: #hostname in my dev.env file at POSTGRES_HOST
+    image: postgres:latest
+    ports: # This is only needed to inspect database. Besides that, connection between backend and database is solved
+      - '5432:5432'
+    env_file:
+      - ./env/dev.env
+    volumes: # For postgres we use a docker volume instead of a connection to local machine
+      - postgres_data:/var/lib/postgresql/data #Stores from /var/lib/postgresql/data to the container volume postgres_data
+
+
+volumes:
+  postgres_data:

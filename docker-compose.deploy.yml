@@ -1,0 +1,38 @@
+version: '3' #version 3 of docker compose
+
+services:
+  backend:
+    image: registry.gitlab.propulsion-home.ch/full-stack/batch-28-may-2024/motion-backend-assignment/group-2:latest
+    tty: true
+    env_file:
+      - ./env/prod.env
+    command: "sh /scripts/prod.sh"
+    depends_on:
+      - postgres
+    volumes:
+      - static_files:/static-files
+      - media_files:/media-files
+
+  postgres:
+    image: postgres:latest
+    env_file:
+      - ./env/prod.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - static_files:/static-files
+      - media_files:/media-files
+      - ./nginx:/etc/nginx/conf.d/
+      - /etc/letsencrypt:/etc/letsencrypt
+
+
+volumes:
+  postgres_data:
+  static_files:
+  media_files:

@@ -3,13 +3,13 @@ from Post.models import Post
 
 
 class PostAdmin(admin.ModelAdmin):
-    list_display = ['title', 'User']
-    list_filter = ['User']
+    list_display = ['title', 'user']
+    list_filter = ['user']
     search_fields = ['title']
     ordering = ['title']
     fieldsets = (
         (None, {
-            'fields': ('title', 'content', 'User', 'liked_by')
+            'fields': ('title', 'content', 'user', 'liked_by')
         }),
     )
 

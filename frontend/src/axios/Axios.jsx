@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-const BASE_URL = 'https://motion.propulsion-home.ch/backend/api' //our base url for axios api
+const BASE_URL = 'http://localhost:8000/backend/api'
+
 
 export const AxiosMotion = axios.create({
   baseURL: BASE_URL,

@@ -21,8 +21,8 @@ const Login = () => {
   const location = useLocation()
   const navigate = useNavigate()
 
-  const [email, setEmail] = useState('sigor39948@avastu.com')
-  const [password, setPassword] = useState('123456')
+  const [email, setEmail] = useState('alikuzucu1411@gmail.com')
+  const [password, setPassword] = useState('aliku')
   const [error, setError] = useState('')
 
   const submitHandler = async (e) => {

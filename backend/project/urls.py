@@ -23,16 +23,16 @@ from drf_yasg import openapi
 from rest_framework_simplejwt import views as jwt_views
 
 schema_view = get_schema_view(
-   openapi.Info(
-      title="Django API",
-      default_version='v1',
-      description="Description of your Django App",
-      terms_of_service="https://www.google.com/policies/terms/",
-      contact=openapi.Contact(email="academy@constructor.org"),
-      license=openapi.License(name="BSD License"),
-   ),
-   public=True, # Set to False restrict access to protected endpoints
-   permission_classes=(permissions.AllowAny,), # Permissions for docs access
+    openapi.Info(
+        title="Django API",
+        default_version='v1',
+        description="Description of your Django App",
+        terms_of_service="https://www.google.com/policies/terms/",
+        contact=openapi.Contact(email="academy@constructor.org"),
+        license=openapi.License(name="BSD License"),
+    ),
+    public=True,  # Set to False restrict access to protected endpoints
+    permission_classes=(permissions.AllowAny,),  # Permissions for docs access
 )
 
 urlpatterns = [
@@ -41,5 +41,6 @@ urlpatterns = [
     path('backend/api/', include('User.urls')),
     path('backend/api/', include('Post.urls')),
     path('backend/api/', include('FriendRequest.urls')),
+    path('backend/api/', include('Comment.urls')),
 
 ]

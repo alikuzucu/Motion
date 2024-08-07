@@ -11,6 +11,7 @@ import {
   SignUpFormWrap,
   SignUpInput,
 } from '../../components/LoginLayout/LoginLayout.styled'
+import {useNavigate} from "react-router-dom";
 
 const SignUpForm = () => {
   //We use a lot of useStates as there is a lot of info to send to api
@@ -25,6 +26,7 @@ const SignUpForm = () => {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
+  const navigate = useNavigate()
   const submitHandler = async (e) => {
     e.preventDefault()
     setError('')
@@ -45,10 +47,14 @@ const SignUpForm = () => {
             last_name: lastname,
           },
         )
-        setSuccess('User Created!!! please login') // Success message just for test purposes
-        console.log('🚀 ~ submitHandler ~ response:', response)
+
+        setSuccess('User Created!!! redirecting to login...') // Success message just for test purposes
+        setTimeout(()=>{
+          navigate('/login')
+        },5000)
       } catch (error) {
-        setError('error')
+        console.log(error)
+        setError(error.response.data.message)
       }
     } else {
       alert('Please make sure your passwords match') // Error if passwords dont match

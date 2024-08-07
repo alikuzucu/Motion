@@ -41,6 +41,5 @@ urlpatterns = [
     path('backend/api/', include('User.urls')),
     path('backend/api/', include('Post.urls')),
     path('backend/api/', include('FriendRequest.urls')),
-    path('backend/api/', include('Comment.urls')),
 
 ]

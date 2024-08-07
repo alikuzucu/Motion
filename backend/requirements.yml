@@ -12,3 +12,4 @@ dependencies:
     - django-cors-headers==4.3.1
     - django-filter==24.2
     - drf-yasg==1.21.7
+    - pillow==10.2.0

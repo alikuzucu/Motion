@@ -3,6 +3,8 @@ from django.conf import settings
 
 from User.models import User
 
+def get_post_picture_path(instance, filename):
+    return f'posts/{instance.id}/{filename}'
 
 class Post(models.Model):
     user = models.ForeignKey(
@@ -13,12 +15,16 @@ class Post(models.Model):
     )
 
     title = models.TextField(
-        verbose_name='title'
+        verbose_name='title',
+        blank=True,
+        null=True,
     )
 
-    # picture = models.TextField(
-    #     verbose_name='picture'
-    #     default ='C:\Users\waltr\Desktop\coursework\group-2\backend\Post\image'
+    # picture = models.ImageField(
+    #     verbose_name='picture',
+    #     blank=True,
+    #     null=True,
+    #     upload_to=get_post_picture_path
     # )
 
     content = models.TextField(

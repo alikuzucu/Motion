@@ -30,6 +30,6 @@ class PostSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        validated_data['User'] = self.context['request'].user
+        validated_data['user'] = self.context['request'].user
         post = super().create(validated_data=validated_data)
         return post

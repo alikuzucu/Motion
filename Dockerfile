@@ -1,29 +1,47 @@
-# Pull miniconda from docker hub as base image
 FROM continuumio/miniconda3:latest
 
-# Copy the requirements file from local folder to image
+#creating folder in the container
+RUN mkdir -p /backend
+RUN mkdir -p /scripts
+RUN mkdir -p /static-files
+RUN mkdir -p /media-files
+RUN mkdir -p /frontend
+
+
+RUN apt-get update
+RUN apt-get upgrade -y
+RUN apt-get install curl -y
+# Install node js version 20.x
+RUN curl https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs
+
+
+
+
+#copy the requirements file from local computer to container
 COPY ./backend/requirements.yml /backend/requirements.yml
-
 COPY ./scripts /scripts
-RUN sed -i 's/\r$//' /scripts/dev.sh #conversion command
-RUN chmod +x ./scripts #execute rights on whole scripts dic
+RUN chmod +x ./scripts
 
-# create the environment inside the docker container
-RUN conda env create -f /backend/requirements.yml
-
-# we set the path where all the python pacakages are
-#puts the path infront of the environment variable path. When conda is started,
-#it'll find the first path for a conda env which is now the one built with the requirements.yml
-#This is also, how it works on the local machine. There by conda activate env, this will be added to the $PATH
+# creating and running conda env, it will activate when we open terminal
+RUN /opt/conda/bin/conda env create -f /backend/requirements.yml
+RUN /opt/conda/envs/motion-assignment/bin/pip install Pillow==10.4.0
 ENV PATH /opt/conda/envs/motion-assignment/bin:$PATH
+RUN echo "source activate motion-assignment" > ~/.bashrc
 
-# activates django env app like conda activate django_app
-RUN echo "source activate motion-assignment" >~/.bashrc
-
+# Prevents the genration of PyCache that you might have trouble getting rid of, especially on the server
 ENV PYTHONDONTWRITEBYTECODE=1
 
-# pass all the files and folders from local folder to image
+WORKDIR /frontend
+COPY ./frontend/package.json /frontend/package.json
+COPY ./frontend/package-lock.json /frontend/package-lock.json
+
+RUN npm install
+
+COPY ./frontend /frontend
+RUN npm run build
+
+# copying rest of the backend folder
 COPY ./backend /backend
 
-# set the working directory to /app for whenever you login into your container
+# this will be the directory that opens at the start
 WORKDIR /backend

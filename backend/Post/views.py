@@ -117,7 +117,7 @@ class CreateLike(GenericAPIView):
     def post(self, request, **kwargs):
         # get_object will return the object from the provided queryset that matches the post_id from the url
         post_to_save = self.get_object()
-        user = request.user
+        user = self.request.user
         if post_to_save in user.liked_posts.all():
             user.liked_posts.remove(post_to_save)
             return Response(self.get_serializer(instance=post_to_save).data)

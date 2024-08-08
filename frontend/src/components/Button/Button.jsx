@@ -26,7 +26,7 @@ const LikeButton = ({ postId, initialLikes }) => {
       setLiked(!liked)
 
       await AxiosMotion.post(
-        `/social/posts/toggle-like/${postId}/`,
+        `/social/Post/toggle-like/${postId}/`,
         {},
         {
           headers: {

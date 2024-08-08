@@ -33,7 +33,8 @@ const Header = () => {
             Authorization: `Bearer ${token}`,
           },
         })
-        setNotifications(response.data.results)
+        console.log(response)
+        setNotifications(response.data)
       } catch (error) {
         console.error('Failed to fetch notifications', error)
       }

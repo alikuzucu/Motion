@@ -85,3 +85,14 @@ class ListAllFriendsView(ListAPIView):
             else:
                 user_ids.add(friend_request.friend_id)
         return User.objects.filter(id__in=user_ids)
+
+
+class ListPendingFriendsView(ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UserSerializer
+    def get_queryset(self):
+        friend_requests = FriendRequest.objects.filter(Q(friend_id=self.request.user.id) & Q(status=FriendRequest.PENDING))
+        user_ids = set()
+        for friend_request in friend_requests:
+            user_ids.add(friend_request.requester_id)
+        return User.objects.filter(id__in=user_ids)

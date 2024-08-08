@@ -1,15 +1,15 @@
 name: motion-assignment
 dependencies:
-  - python=3.12.3
+  - python
   - pip
   - psycopg2
   - pip:
     - django==5.0.6
     - djangorestframework==3.15.1
     - djangorestframework_simplejwt==5.3.1
-    - flake8
-    - gunicorn
+    - flake8==7.1.0
+    - gunicorn==22.0.0
     - django-cors-headers==4.3.1
     - django-filter==24.2
     - drf-yasg==1.21.7
-    - pillow==10.2.0
+    - pillow==10.4.0

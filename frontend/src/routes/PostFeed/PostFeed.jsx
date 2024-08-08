@@ -60,6 +60,7 @@ export const PostFeed = () => {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true)
+      console.log(token)
       if (token) {
         try {
           // fetching User profile
@@ -69,14 +70,16 @@ export const PostFeed = () => {
             },
           })
           // dispatching action to store User profile
+console.log('response',userProfileResponse )
           dispatch(getUserProfileSuccess(userProfileResponse.data))
           // fetching Post
-          const postsResponse = await AxiosMotion.get('/social/posts/', {
+          const postsResponse = await AxiosMotion.get('/social/Post/', {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           })
-          dispatch(get_posts(postsResponse.data.results))
+
+          dispatch(get_posts(postsResponse.data))
         } catch (error) {
           console.error(error)
         } finally {

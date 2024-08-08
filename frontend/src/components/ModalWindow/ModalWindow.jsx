@@ -97,7 +97,7 @@ export const ModalWindow = ({ isOpen, onRequestClose }) => {
 
     if (newPostContent.trim() && token) {
       try {
-        const response = await AxiosMotion.post('/social/posts/', formData, {
+        const response = await AxiosMotion.post('/social/Post/', formData, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -108,13 +108,15 @@ export const ModalWindow = ({ isOpen, onRequestClose }) => {
 
         // refetching Post to add the new one on the feed
         const fetchData = async () => {
+
           if (token) {
             try {
-              const response = await AxiosMotion.get('/social/posts/', {
+              const response = await AxiosMotion.get('/social/Post/', {
                 headers: {
                   Authorization: `Bearer ${token}`,
                 },
               })
+
               dispatch(get_posts(response.data.results))
             } catch (error) {
               console.error(error)
@@ -123,7 +125,7 @@ export const ModalWindow = ({ isOpen, onRequestClose }) => {
         }
         fetchData()
       } catch (error) {
-        console.error(error)
+        console.log(error)
       } finally {
         setNewPostContent('')
       }

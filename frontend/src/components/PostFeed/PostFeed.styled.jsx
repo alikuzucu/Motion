@@ -141,7 +141,7 @@ export const PostImageContainer = styled.div`
   ${({ single }) =>
     single &&
     css`
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
     `}
 `
@@ -149,5 +149,5 @@ export const PostImageContainer = styled.div`
 export const PostImage = styled.img`
   width: ${({ single }) => (single ? '100%' : 'calc(50% - 10px)')};
   object-fit: cover;
-  max-height: ${({ single }) => (single ? 'auto' : '200px')};
+  max-height: ${({ single }) => (single ? 'auto' : '400px')};
 `

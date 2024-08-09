@@ -1,12 +1,14 @@
 from django.db.models import Q
+from rest_framework import status
 from rest_framework.generics import ListAPIView, GenericAPIView, ListCreateAPIView, \
     RetrieveUpdateDestroyAPIView
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db.models import Q
 from FriendRequest.models import FriendRequest
 from User.models import User
-from .models import Post
+from .models import Post, Image
 from User.permissions import IsOwnerOrReadOnly
 
 from .serializers import PostSerializer
@@ -30,6 +32,21 @@ class ListCreatePosts(ListCreateAPIView):
     """
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+    parser_classes = (MultiPartParser, FormParser)
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        post = serializer.save(user=self.request.user)
+
+        # Handle multiple images
+        images = request.FILES.getlist('images')  # Get list of images from the request
+        for image in images:
+            Image.objects.create(post=post, image=image)
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class RetrieveUpdateDestroyPost(RetrieveUpdateDestroyAPIView):

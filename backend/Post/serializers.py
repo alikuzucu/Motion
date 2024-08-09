@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Post
+from .models import Post, Image
 from User.serializers import UserSerializer
 
 
@@ -8,6 +8,7 @@ class PostSerializer(serializers.ModelSerializer):
     logged_in_user_liked = serializers.SerializerMethodField()
     is_from_logged_in_user = serializers.SerializerMethodField()
     amount_of_likes = serializers.SerializerMethodField()
+    images = serializers.SerializerMethodField()
 
     def get_logged_in_user_liked(self, post):
         user = self.context['request'].user
@@ -25,6 +26,9 @@ class PostSerializer(serializers.ModelSerializer):
     def get_amount_of_likes(post):
         return post.liked_by.all().count()
 
+    def get_images(self, post):
+        return [image.image.url for image in post.images.all()] if post.images.exists() else []
+
     class Meta:
         model = Post
         fields = '__all__'
@@ -33,3 +37,9 @@ class PostSerializer(serializers.ModelSerializer):
         validated_data['user'] = self.context['request'].user
         post = super().create(validated_data=validated_data)
         return post
+
+
+class ImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Image
+        fields = ['image']

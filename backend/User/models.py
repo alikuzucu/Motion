@@ -10,6 +10,9 @@ def code_generator(length=12):
     characters = string.ascii_letters + string.digits
     return ''.join(random.choice(characters) for i in range(length))
 
+def get_avatar_picture_path(instance, filename):
+    return f'avatars/{instance.id}/{filename}'
+
 
 class User(AbstractUser):
     about_me = models.CharField(
@@ -28,6 +31,7 @@ class User(AbstractUser):
     code = models.CharField(max_length=12, default=code_generator)
     email = models.EmailField(unique=True)
     is_active = models.BooleanField(default=False)
+    avatar = models.ImageField(blank=True, null=True, upload_to=get_avatar_picture_path)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name', 'username']

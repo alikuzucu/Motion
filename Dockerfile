@@ -24,9 +24,8 @@ RUN chmod +x ./scripts
 
 # creating and running conda env, it will activate when we open terminal
 RUN /opt/conda/bin/conda env create -f /backend/requirements.yml
-RUN /opt/conda/envs/motion-assignment/bin/pip install Pillow==10.4.0
-ENV PATH /opt/conda/envs/motion-assignment/bin:$PATH
-RUN echo "source activate motion-assignment" > ~/.bashrc
+ENV PATH /opt/conda/envs/motion-2/bin:$PATH
+RUN echo "source activate motion-2" > ~/.bashrc
 
 # Prevents the genration of PyCache that you might have trouble getting rid of, especially on the server
 ENV PYTHONDONTWRITEBYTECODE=1

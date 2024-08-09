@@ -3,15 +3,17 @@ from django.conf import settings
 
 from User.models import User
 
+
 def get_post_picture_path(instance, filename):
-    return f'posts/{instance.id}/{filename}'
+    return f'posts/{instance.user_id}/{filename}'
+
 
 class Post(models.Model):
     user = models.ForeignKey(
         verbose_name='User',
         to=settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='Post',
+        related_name='posts',
     )
 
     title = models.TextField(
@@ -19,13 +21,6 @@ class Post(models.Model):
         blank=True,
         null=True,
     )
-
-    # picture = models.ImageField(
-    #     verbose_name='picture',
-    #     blank=True,
-    #     null=True,
-    #     upload_to=get_post_picture_path
-    # )
 
     content = models.TextField(
         verbose_name='content'
@@ -52,6 +47,11 @@ class Post(models.Model):
         verbose_name='shared by'
     )
 
+    def get_image_url(self):
+        if self.images:
+            return [self.images.url]
+        return []
+
     def __str__(self):
         return f"{self.user}: {self.content[:50]} ..."
 
@@ -60,3 +60,22 @@ class Post(models.Model):
             self.shared_by.create(user)
             self.save()
         return self
+
+
+def get_image_path(instance, filename):
+    return f'posts/{instance.post.user_id}/{filename}'
+
+
+class Image(models.Model):
+    post = models.ForeignKey(
+        'Post',
+        related_name='images',
+        on_delete=models.CASCADE
+    )
+    image = models.ImageField(
+        verbose_name='image',
+        upload_to=get_image_path
+    )
+
+    def __str__(self):
+        return f"Image {self.id} for Post {self.post.id}"

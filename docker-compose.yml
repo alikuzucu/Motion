@@ -2,7 +2,9 @@ version: '3' #version 3 of docker compose
 
 services:
   backend:
-    image: registry.gitlab.propulsion-home.ch/full-stack/batch-28-may-2024/motion-backend-assignment/group-2:latest #Image that is stored in my gitlab
+    build:
+      context: .
+      dockerfile: Dockerfile
     tty: true
     #open port 8000 on the machine side (left) and on the container side (right)
     ports:

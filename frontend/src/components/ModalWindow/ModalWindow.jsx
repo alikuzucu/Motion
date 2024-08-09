@@ -108,7 +108,7 @@ export const ModalWindow = ({ isOpen, onRequestClose }) => {
 
         // refetching Post to add the new one on the feed
         const fetchData = async () => {
-
+          console.log('token', Boolean(token))
           if (token) {
             try {
               const response = await AxiosMotion.get('/social/Post/', {
@@ -117,7 +117,7 @@ export const ModalWindow = ({ isOpen, onRequestClose }) => {
                 },
               })
 
-              dispatch(get_posts(response.data.results))
+              dispatch(get_posts(response.data))
             } catch (error) {
               console.error(error)
             }

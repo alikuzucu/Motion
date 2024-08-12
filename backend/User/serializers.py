@@ -1,5 +1,10 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from rest_framework import serializers
+from rest_framework.utils import json
+
+from FriendRequest.models import FriendRequest
+from Post.models import Post
 
 User = get_user_model()
 
@@ -8,13 +13,18 @@ class UserSerializer(serializers.ModelSerializer):
     logged_in_user_is_following = serializers.SerializerMethodField()
     amount_of_followers = serializers.SerializerMethodField()
     amount_following = serializers.SerializerMethodField()
+    amount_of_posts = serializers.SerializerMethodField()
+    amount_of_likes = serializers.SerializerMethodField()
+    amount_of_friends = serializers.SerializerMethodField()
 
     def get_logged_in_user_is_following(self, user):
         request = self.context.get('request')
         if request and hasattr(request, 'User'):
             return user in request.user.follower.all()
         return False
-# return User in self.context['request'].User.followers.all()
+
+    def get_amount_of_posts(self, user):
+        return Post.objects.filter(user_id=user).count()
 
     def get_amount_of_followers(self, user):
         return User.objects.filter(followers=user).count()
@@ -22,10 +32,26 @@ class UserSerializer(serializers.ModelSerializer):
     def get_amount_following(self, user):
         return user.followees.count()
 
+    def get_amount_of_likes(self, user):
+        return Post.objects.filter(liked_by=user).count()
+
+    def get_amount_of_friends(self, user):
+        friend_requests = FriendRequest.objects.filter(
+            (Q(requester_id=user.id) | Q(friend_id=user.id)) & Q(
+                status=FriendRequest.ACCEPTED))
+        user_ids = set()
+        for friend_request in friend_requests:
+            if friend_request.friend_id == user.id:
+                user_ids.add(friend_request.requester_id)
+            else:
+                user_ids.add(friend_request.friend_id)
+        return User.objects.filter(id__in=user_ids).count()
+
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'about_me', 'amount_of_followers', 'logged_in_user_is_following',
-                  'amount_following', ]
+                  'amount_following', 'first_name', 'last_name', 'avatar', 'phone_number', 'things_user_likes',
+                  'amount_of_posts', 'amount_of_likes', 'amount_of_friends', 'location', 'avatar']
         read_only_fields = ['email']
 
 
@@ -60,6 +86,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+
 
 class FirstUserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:

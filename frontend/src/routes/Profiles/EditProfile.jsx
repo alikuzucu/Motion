@@ -74,7 +74,7 @@ export const EditProfile = () => {
           setPhoneNumber(res.data.phone_number)
           setAboutMe(res.data.about_me)
           setId(res.data.id)
-          setThingsILike(res.data.things_user_likes)
+          setThingsILike(res.data.things_user_likes || [])
           setAvatarSource(res.data.avatar || defaultavatar)
         })
 
@@ -89,7 +89,7 @@ export const EditProfile = () => {
     const body = {
       email: email,
       username: userName,
-      things_user_likes: thingsILike,
+      things_user_likes: {thingsILike},
       id: id,
       title: '',
       first_name: firstname,
@@ -101,10 +101,13 @@ export const EditProfile = () => {
     }
 
     console.log('Submitting with the following data:', body)
-
     const formData = new FormData()
     formData.append('content', body)
-    formData.append('avatar', avatarSource)
+    if(avatarSource instanceof File) {
+      formData.append('avatar', avatarSource)
+    }
+
+    console.log('Submitting with the following data:', formData)
 
     const config = {
       headers: {
@@ -112,7 +115,7 @@ export const EditProfile = () => {
         // 'Content-Type': 'application/json',
       },
     }
-    AxiosMotion.patch('/users/me/', body, config)
+    AxiosMotion.patch('/users/me/', formData, config)
       .then((res) => {
         console.log(res)
       })

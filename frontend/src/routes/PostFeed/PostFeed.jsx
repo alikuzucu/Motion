@@ -196,7 +196,6 @@ export const PostFeed = () => {
                                 </PostButton>
                             </PostWrapTop>
                             <p>{post.content}</p>
-                            {/* Images (conditional rendering). not sure it works */}
                             {post.images && post.images.length > 0 && (
                                 <PostImageContainer
                                     single={post.images.length === 1 ? 'true' : 'false'}

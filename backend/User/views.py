@@ -26,10 +26,6 @@ class MeView(RetrieveUpdateDestroyAPIView):
     def get_object(self):
         return self.request.user
 
-    def get_serializer_class(self):
-        if self.request.method == 'PATCH':
-            return UserUpdateSerializer
-        return UserSerializer
 
     def delete(self, request, *args, **kwargs):
         user = self.get_object()
@@ -61,6 +57,8 @@ class ListOfFollowers(ListAPIView):
 class RegistrationView(CreateAPIView):
     serializer_class = FirstUserRegistrationSerializer
     permission_classes = (AllowAny,)
+
+
 
 
 @receiver(post_save, sender=User)

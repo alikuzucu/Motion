@@ -53,6 +53,7 @@ const FetchOtherUserDetails = ({ userId }) => {
 
         dispatch(getUserProfileSuccess(res.data))
         setUser(res.data)
+        console.log(res.data)
       } catch (error) {
         dispatch(getUserProfileFailure(error.message))
       }

@@ -1,10 +1,10 @@
 import random
 import string
 
-from django.conf import settings
 from django.contrib.auth.models import AbstractUser
-from django.contrib.postgres.fields import ArrayField
 from django.db import models
+
+from project import settings
 
 
 def code_generator(length=12):
@@ -30,14 +30,6 @@ class User(AbstractUser):
         blank=True,
     )
 
-    things_user_likes = ArrayField(
-        models.CharField(max_length=100),
-        blank=True,
-        null=True,
-        default=list,
-        verbose_name="Things User Likes",
-    )
-
     code = models.CharField(max_length=12, default=code_generator)
     email = models.EmailField(unique=True)
     is_active = models.BooleanField(default=False)
@@ -48,3 +40,16 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name', 'username']
 
+class Keyword(models.Model):
+    user = models.ManyToManyField(
+        verbose_name='user',
+        to=settings.AUTH_USER_MODEL,
+        related_name='things_user_likes',
+    )
+    keyword = models.CharField(
+        verbose_name='keyword',
+        max_length=20
+    )
+
+    def __str__(self):
+        return f"{self.keyword}"

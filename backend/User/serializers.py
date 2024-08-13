@@ -5,9 +5,19 @@ from rest_framework.utils import json
 
 from FriendRequest.models import FriendRequest
 from Post.models import Post
+from User.models import Keyword
 
 User = get_user_model()
 
+class KeywordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Keyword
+        fields = ['keyword']
+
+    def to_internal_value(self, data):
+        if isinstance(data, str):
+            return {'keyword': data}  # Convert string to dictionary
+        return super().to_internal_value(data)
 
 class UserSerializer(serializers.ModelSerializer):
     logged_in_user_is_following = serializers.SerializerMethodField()
@@ -16,6 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
     amount_of_posts = serializers.SerializerMethodField()
     amount_of_likes = serializers.SerializerMethodField()
     amount_of_friends = serializers.SerializerMethodField()
+    things_user_likes = KeywordSerializer(many=True)
 
     def get_logged_in_user_is_following(self, user):
         request = self.context.get('request')
@@ -46,6 +57,25 @@ class UserSerializer(serializers.ModelSerializer):
             else:
                 user_ids.add(friend_request.friend_id)
         return User.objects.filter(id__in=user_ids).count()
+
+    def update(self, instance, validated_data):
+        # Handle the things_user_likes field
+        things_user_likes_data = validated_data.pop('things_user_likes', [])
+
+        # Clear existing keywords
+        instance.things_user_likes.clear()
+
+        # Create and add new keywords
+        for keyword_data in things_user_likes_data:
+            keyword, created = Keyword.objects.get_or_create(keyword=keyword_data['keyword'])
+            instance.things_user_likes.add(keyword)
+
+        # Update other fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance
 
     class Meta:
         model = User

@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.db.models import Q
@@ -13,6 +15,7 @@ from rest_framework.generics import GenericAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from User.serializers import UserSerializer, UserUpdateSerializer
+from .models import Keyword
 from .permissions import IsOwnerOrReadOnly
 
 User = get_user_model()
@@ -26,11 +29,34 @@ class MeView(RetrieveUpdateDestroyAPIView):
     def get_object(self):
         return self.request.user
 
-
-    def delete(self, request, *args, **kwargs):
+    def update(self, request, *args, **kwargs):
         user = self.get_object()
-        user.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+
+        # Extract 'content' from the form data
+        content = request.data.get('content', None)
+        if content:
+            try:
+                # Parse the JSON string into a Python dictionary
+                data = json.loads(content)
+            except json.JSONDecodeError:
+                return Response({'error': 'Invalid JSON in content'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Extract and handle 'things_user_likes'
+            things_user_likes = data.get('things_user_likes', [])
+            if things_user_likes:
+                user.things_user_likes.clear()  # Clear existing keywords
+                for keyword in things_user_likes:
+                    keyword_obj, created = Keyword.objects.get_or_create(keyword=keyword)
+                    user.things_user_likes.add(keyword_obj)
+
+            # Update other user fields as needed
+            serializer = self.get_serializer(user, data=data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+
+            return Response(serializer.data)
+
+        return Response({'error': 'No content provided'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserListView(ListAPIView):

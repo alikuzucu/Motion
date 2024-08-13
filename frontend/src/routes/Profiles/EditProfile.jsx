@@ -87,22 +87,23 @@ export const EditProfile = () => {
     e.preventDefault()
 
     const body = {
-      email: email,
-      username: userName,
-      things_user_likes: {thingsILike},
-      id: id,
-      title: '',
-      first_name: firstname,
-      last_name: lastname,
-      job: '',
-      location: location,
-      phone_number: phoneNumber,
-      about_me: aboutMe,
+        email: email,
+        username: userName,
+        things_user_likes: thingsILike,
+        id: id,
+        title: '',
+        first_name: firstname,
+        last_name: lastname,
+        job: '',
+        location: location,
+        phone_number: phoneNumber,
+        about_me: aboutMe,
+
     }
 
     console.log('Submitting with the following data:', body)
     const formData = new FormData()
-    formData.append('content', body)
+    formData.append('content', JSON.stringify(body))
     if(avatarSource instanceof File) {
       formData.append('avatar', avatarSource)
     }
@@ -127,6 +128,7 @@ export const EditProfile = () => {
     setThingsILike(thingsILike.filter((a) => a !== element))
   }
 
+  console.log(thingsILike)
   const submitHandlerLike = async (e) => {
     e.preventDefault()
     setThingsILike([...thingsILike, somethingILike])

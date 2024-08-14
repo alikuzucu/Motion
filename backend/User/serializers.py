@@ -14,10 +14,15 @@ class KeywordSerializer(serializers.ModelSerializer):
         model = Keyword
         fields = ['keyword']
 
+    def to_representation(self, value):
+        return value.keyword
+
     def to_internal_value(self, data):
+        # Convert the string into a Keyword object
         if isinstance(data, str):
-            return {'keyword': data}  # Convert string to dictionary
-        return super().to_internal_value(data)
+            keyword_obj, created = Keyword.objects.get_or_create(keyword=data)
+            return keyword_obj
+        raise serializers.ValidationError("Expected a string for keyword")
 
 class UserSerializer(serializers.ModelSerializer):
     logged_in_user_is_following = serializers.SerializerMethodField()
@@ -59,24 +64,25 @@ class UserSerializer(serializers.ModelSerializer):
         return User.objects.filter(id__in=user_ids).count()
 
     def update(self, instance, validated_data):
-        # Handle the things_user_likes field
+        # Pop things_user_likes from validated_data
         things_user_likes_data = validated_data.pop('things_user_likes', [])
 
-        # Clear existing keywords
-        instance.things_user_likes.clear()
-
-        # Create and add new keywords
-        for keyword_data in things_user_likes_data:
-            keyword, created = Keyword.objects.get_or_create(keyword=keyword_data['keyword'])
-            instance.things_user_likes.add(keyword)
-
-        # Update other fields
+        # Update other fields normally
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
+        # Handle the many-to-many field (things_user_likes)
+        if things_user_likes_data:
+            # Clear the existing keywords
+            instance.things_user_likes.clear()
+
+            # Add new keywords
+            for keyword_obj in things_user_likes_data:
+                instance.things_user_likes.add(keyword_obj)
+
+        # Save and return the updated instance
         instance.save()
         return instance
-
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'about_me', 'amount_of_followers', 'logged_in_user_is_following',

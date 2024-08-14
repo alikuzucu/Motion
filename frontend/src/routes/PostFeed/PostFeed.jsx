@@ -198,14 +198,14 @@ export const PostFeed = () => {
                             <p>{post.content}</p>
                             {post.images && post.images.length > 0 && (
                                 <PostImageContainer
-                                    single={post.images.length === 1 ? 'true' : 'false'}
+                                    single={post.images.length === 1 ? 'true' : ''}
                                 >
                                     {post.images.map((imageUrl, index) => (
                                         <PostImage
                                             key={index}
                                             src={`http://localhost:8000${imageUrl}`}
                                             alt={`Post image ${index + 1}`}
-                                            single={post.images.length === 1}
+                                            single={post.images.length === 1 ? 'true' : ''}
                                         />
                                     ))}
                                 </PostImageContainer>

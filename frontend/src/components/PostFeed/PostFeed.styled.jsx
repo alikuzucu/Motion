@@ -143,11 +143,12 @@ export const PostImageContainer = styled.div`
     css`
       flex-direction: row;
       align-items: center;
+      justify-content: center;
     `}
 `
 
 export const PostImage = styled.img`
-  width: ${({ single }) => (single ? '100%' : 'calc(50% - 10px)')};
+  width: ${({ single }) => (single ? 'calc(50% - 10px)' : 'calc(50% - 10px)')};
   object-fit: cover;
-  max-height: ${({ single }) => (single ? 'auto' : '400px')};
+  max-height: ${({ single }) => (single ? '500px' : '400px')};
 `

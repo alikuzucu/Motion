@@ -34,22 +34,18 @@ export const PostFeedSearchList = styled.ul`
 `
 
 export const PostFeedSearchItem = styled(NavLink)`
-  color: lightgrey;
   text-decoration: none;
   padding-bottom: 30px;
+  color: ${({filterActive}) => (filterActive ? 'black' : 'rgba(0,0,0,0.5)')};
+  border-color: ${({filterActive}) => (filterActive ? 'black' : 'transparent')};
+  border-bottom: ${({filterActive}) => (filterActive ? 'solid 1px black' : 'transparent')};
+  
   &:not(:last-child) {
     margin-right: 40px;
   }
-  &:first-child {
-    color: black;
-    border-bottom: solid 1px black;
-  }
+    
+  
 
-  /* commented out while no functionality */
-  /* &.active {
-    color: black;
-    border-bottom: solid 1px black;
-  } */
 `
 
 export const PostFeedContainer = styled.div`

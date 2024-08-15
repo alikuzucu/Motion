@@ -46,8 +46,9 @@ export const PostFeed = () => {
     // accessing User profile from the redux store
 
     const userProfile = useSelector((state) => state.userProfile.user)
-
+    const filters = ['All', 'Liked', 'Friends', 'Follow']
     const dispatch = useDispatch()
+    const [selectedFilter, setSelectedFilter] = useState('All')
 
     const [isLoading, setIsLoading] = useState(false)
     const [modalIsOpen, setModalIsOpen] = useState(false)
@@ -88,7 +89,7 @@ export const PostFeed = () => {
             }
         }
         fetchData()
-    }, [token, dispatch])
+    }, [token])
 
     // function to convert post creation time (originally looks like this: "2024-05-30T16:57:29.049326+02:00" )
 
@@ -119,6 +120,29 @@ export const PostFeed = () => {
         setEditDeleteModalIsOpen(true)
     }
 
+    const filterHandler = async (filter) =>{
+        if (filter === 'All'){
+            filter=''
+        }
+        setIsLoading(true);
+        try{
+            const postsResponse = await AxiosMotion.get(`/social/Post/${filter}`, {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    })
+            console.log('hi', postsResponse.data)
+            dispatch(get_posts(postsResponse.data))
+        }
+        catch (error){
+            console.log(error.message)
+        }
+        finally {
+        setIsLoading(false); // Set loading state to false
+    }
+    }
+
+
     return (
         <>
             <PostFeedSearch>
@@ -129,10 +153,11 @@ export const PostFeed = () => {
 
                 <Fragment>
                     <PostFeedSearchList>
-                        <PostFeedSearchItem>All</PostFeedSearchItem>
-                        <PostFeedSearchItem>Liked</PostFeedSearchItem>
-                        <PostFeedSearchItem>Friends</PostFeedSearchItem>
-                        <PostFeedSearchItem>Follow</PostFeedSearchItem>
+                        {filters.map(
+                            filter => <PostFeedSearchItem filterActive={selectedFilter === filter} key={filter}
+                                                          onClick={() => {setSelectedFilter(filter), filterHandler(filter)}}>
+                                {filter}
+                            </PostFeedSearchItem>)}
                     </PostFeedSearchList>
                 </Fragment>
             </PostFeedSearch>

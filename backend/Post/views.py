@@ -14,15 +14,6 @@ from User.permissions import IsOwnerOrReadOnly
 from .serializers import PostSerializer
 
 
-class ListSearchPosts(ListAPIView):
-    permission_classes = (IsAuthenticated,)
-    serializer_class = PostSerializer
-
-    def get_queryset(self):
-        search_str = self.request.query_params.get('search', None)
-        return Post.objects.filter(Q(content__icontains=search_str) | Q(title__icontains=search_str))
-
-
 class ListCreatePosts(ListCreateAPIView):
     """
     get:
@@ -30,10 +21,17 @@ class ListCreatePosts(ListCreateAPIView):
     post:
     Create a new Post.
     """
-    queryset = Post.objects.all()
     serializer_class = PostSerializer
     parser_classes = (MultiPartParser, FormParser)
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        search_str = self.request.query_params.get('search', None)
+        user = self.request.user
+        if search_str:
+            return Post.objects.filter(Q(content__icontains=search_str) | Q(title__icontains=search_str)).order_by("-created")
+        else:
+            return Post.objects.all().order_by("-created")
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -89,7 +87,7 @@ class ListPostsFollowees(ListAPIView):
     def get_queryset(self):
         followed_user_ids = self.request.user.followees.all().values_list("id", flat=True)
         posts = Post.objects.filter(user__in=followed_user_ids)
-        return posts
+        return posts.order_by("-created")
 
 
 class ListLikes(ListAPIView):
@@ -100,7 +98,7 @@ class ListLikes(ListAPIView):
     serializer_class = PostSerializer
 
     def get_queryset(self):
-        return self.request.user.posts
+        return Post.objects.filter(liked_by__id=self.request.user.id).order_by("-created")
 
 
 class ListFriendsPostsView(ListAPIView):

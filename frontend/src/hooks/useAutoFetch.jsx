@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {AxiosMotion} from "../axios/index.js";
+import {AxiosMotion} from "../axios/Axios.jsx";
 
 const useAutoFetch = (accessToken) => {
     const [error, setError] = useState(null);
@@ -12,6 +12,7 @@ const useAutoFetch = (accessToken) => {
                 const response = await AxiosMotion.post("/auth/token/verify/", {
                     token: accessToken,
                 });
+                console.log('response',response)
                 setLoading(false);
             } catch (error) {
                 setError(error.message);

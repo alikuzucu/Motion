@@ -13,6 +13,7 @@ function App() {
     const {error, loading} = useAutoFetch(accessToken)
 
     useEffect(() => {
+        console.log('error',error)
         if (error === null) {
             dispatch(login_user(accessToken))
         } else {

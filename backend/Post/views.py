@@ -27,7 +27,6 @@ class ListCreatePosts(ListCreateAPIView):
 
     def get_queryset(self):
         search_str = self.request.query_params.get('search', None)
-        user = self.request.user
         if search_str:
             return Post.objects.filter(Q(content__icontains=search_str) | Q(title__icontains=search_str)).order_by("-created")
         else:

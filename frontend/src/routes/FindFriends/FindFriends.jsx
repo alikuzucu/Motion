@@ -49,7 +49,7 @@ export const FindFriends = () => {
               Authorization: `Bearer ${token}`,
             },
           })
-          const shuffledUsers = shuffleArray(response.data.results)
+          const shuffledUsers = shuffleArray(response.data)
           dispatch(get_allUsers(shuffledUsers))
         } catch (error) {
           console.log(error)
@@ -64,7 +64,7 @@ export const FindFriends = () => {
   const followUser = async (token, userId) => {
     try {
       await AxiosMotion.post(
-        `/social/followers/toggle-follow/${userId}/`,
+        `/social/toggle-follow/${userId}/`,
         {},
         {
           headers: {
@@ -82,7 +82,7 @@ export const FindFriends = () => {
     try {
       if (isFriend) {
         const response = await AxiosMotion.delete(
-          `/social/friends/remove/${userId}/`,
+          `/friends/requests/${userId}/`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -93,7 +93,7 @@ export const FindFriends = () => {
         dispatch(remove_friend({ id: userId }))
       } else {
         const response = await AxiosMotion.post(
-          `/social/friends/request/${userId}/`,
+          `/friends/${userId}/`,
           {},
           {
             headers: {

@@ -81,18 +81,20 @@ class RegistrationView(CreateAPIView):
     serializer_class = FirstUserRegistrationSerializer
     permission_classes = (AllowAny,)
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
 
-#
-#
-# @receiver(post_save, sender=User)
-# def create_user_profile(sender, instance, **kwargs):
-#     send_mail(
-#         'New User',
-#         f'Your code is {instance.code}.',
-#         'motionbackend1@gmail.com',
-#         [f'{instance.email}'],
-#         fail_silently=False,
-#     )
+        send_mail(
+            'New User',
+            f'Your code is {user.code}.',
+            'motionbackend1@gmail.com',
+            [f'{user.email}'],
+            fail_silently=False,
+        )
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class RegistrationValidationView(GenericAPIView):
@@ -148,8 +150,8 @@ class FollowUnfollowUser(GenericAPIView):
     def post(self, request, **kwargs):
         target_user = self.get_object()
         user = request.user
-        if target_user in user.follower.all():
-            user.follower.remove(target_user)
+        if target_user in user.followers.all():
+            user.followers.remove(target_user)
             return Response(self.get_serializer(instance=target_user).data)
-        user.follower.add(target_user)
+        user.followers.add(target_user)
         return Response(self.get_serializer(instance=target_user).data)

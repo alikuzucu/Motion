@@ -68,8 +68,9 @@ const Header = () => {
         </HeaderLayoutLink>
       </HeaderContainerLeft>
       <HeaderContainerRight>
+        {notifications&&
         <HeaderDropdown notifications={notifications} />
-
+        }
         <UserMenuDropdown handleLogout={handleLogout} />
       </HeaderContainerRight>
     </HeaderContainer>

@@ -52,20 +52,20 @@ export const DropdownContent = styled.div`
 `
 
 export const Notification = styled.a`
-  display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  text-decoration: none;
-  color: #000000;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 10px 12px;
+    text-decoration: none;
+    color: #000000;
 
-  &:hover {
-    background-color: #f1f1f1;
-  }
+    &:hover {
+        background-color: #f1f1f1;
+    }
 `
 export const DropDownFriendPicture = styled.img`
   border-radius: 50%;
   max-height: 50px;
   min-height: 50px;
   max-width: auto;
-  margin-right: 15px;
 `

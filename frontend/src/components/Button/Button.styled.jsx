@@ -14,7 +14,9 @@ export const LikeShareBtn = styled.button`
 `
 
 export const LikeShareIcon = styled.img`
-  margin-right: 16px;
+    margin-right: 16px;
+    max-width: 20px;
+    max-height: 20px;
 `
 
 export const LikedDescr = styled.p`

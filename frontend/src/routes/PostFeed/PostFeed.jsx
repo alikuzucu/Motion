@@ -15,8 +15,7 @@ import {
     PostDescrGrey,
     PostFeedContainer,
     PostFeedSearch,
-    PostFeedSearchDescr,
-    PostFeedSearchIcon,
+    PostFeedSearchIcon, PostFeedSearchInput,
     PostFeedSearchItem,
     PostFeedSearchList,
     PostImage,
@@ -52,6 +51,7 @@ export const PostFeed = () => {
 
     const [isLoading, setIsLoading] = useState(false)
     const [modalIsOpen, setModalIsOpen] = useState(false)
+    const [searchPosts, setSearchPosts] = useState('')
 
     const [selectedPost, setSelectedPost] = useState(null)
     const [editDeleteModalIsOpen, setEditDeleteModalIsOpen] = useState(false)
@@ -120,42 +120,66 @@ export const PostFeed = () => {
         setEditDeleteModalIsOpen(true)
     }
 
-    const filterHandler = async (filter) =>{
-        if (filter === 'All'){
-            filter=''
+    const filterHandler = async (filter) => {
+        if (filter === 'All') {
+            filter = ''
         }
         setIsLoading(true);
-        try{
+        try {
             const postsResponse = await AxiosMotion.get(`/social/Post/${filter}`, {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    })
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
             console.log('hi', postsResponse.data)
             dispatch(get_posts(postsResponse.data))
-        }
-        catch (error){
+        } catch (error) {
             console.log(error.message)
+        } finally {
+            setIsLoading(false); // Set loading state to false
         }
-        finally {
-        setIsLoading(false); // Set loading state to false
-    }
     }
 
+    const searchHandler = async (search) => {
+        setIsLoading(true);
+        try {
+            const postsResponse = await AxiosMotion.get(`/social/Post/?search=${search}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            console.log(postsResponse)
+            dispatch(get_posts(postsResponse.data))
+        } catch (error) {
+            console.log(error.message)
+        } finally {
+            setIsLoading(false); // Set loading state to false
+        }
+
+    }
 
     return (
         <>
             <PostFeedSearch>
                 <SearchPostFeedWrap>
-                    <PostFeedSearchIcon src={searchIcon}/>
-                    <PostFeedSearchDescr>Search posts...</PostFeedSearchDescr>
+                    <PostFeedSearchIcon onClick={() => {
+                        searchHandler(searchPosts)
+                    }} src={searchIcon}/>
+                    <PostFeedSearchInput
+                        id="search"
+                        type="text"
+                        placeholder="Search posts..."
+                        value={searchPosts}
+                        onChange={(e) => setSearchPosts(e.target.value)}/>
                 </SearchPostFeedWrap>
 
                 <Fragment>
                     <PostFeedSearchList>
                         {filters.map(
                             filter => <PostFeedSearchItem filterActive={selectedFilter === filter} key={filter}
-                                                          onClick={() => {setSelectedFilter(filter), filterHandler(filter)}}>
+                                                          onClick={() => {
+                                                              setSelectedFilter(filter), filterHandler(filter)
+                                                          }}>
                                 {filter}
                             </PostFeedSearchItem>)}
                     </PostFeedSearchList>

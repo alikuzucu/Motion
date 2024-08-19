@@ -11,3 +11,4 @@ pycache
 */pycache
 dev.env
 prod.env
+media

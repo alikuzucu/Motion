@@ -18,12 +18,15 @@ export const PostFeedSearchIcon = styled.img`
   width: 20px;
   padding-bottom: 30px;
   margin-right: 16px;
+  cursor:pointer;
 `
 
-export const PostFeedSearchDescr = styled.p`
+export const PostFeedSearchInput = styled.input`
   margin: 0;
   color: grey;
   padding-bottom: 30px;
+  border: none;
+  outline: none;
 `
 
 export const PostFeedSearchList = styled.ul`

@@ -9,8 +9,9 @@ export const DropdownButton = styled.button`
 `
 
 export const BellIcon = styled.img`
-  width: 24px;
-  height: auto;
+    width: 24px;
+    height: auto;
+    cursor: pointer;
 `
 
 export const Badge = styled.span`

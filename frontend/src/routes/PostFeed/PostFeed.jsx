@@ -1,6 +1,5 @@
 import {Fragment, useEffect, useState} from 'react'
 import {useDispatch, useSelector} from 'react-redux'
-import {AxiosMotion} from '../../axios/Axios'
 import {get_posts} from '../../store/slices/PostSlice'
 import avatar from '../../assets/svgs/avatar.svg'
 import menu from '../../assets/svgs/menu.svg'
@@ -36,6 +35,7 @@ import EditDeleteModal from '../../components/EditDeleteModal/EditDeleteModal'
 
 import {getUserProfileSuccess} from '../../store/slices/UserProfileSlice'
 import {Link} from 'react-router-dom'
+import useApiRequest from "../../hooks/useApiRequest.jsx";
 
 export const PostFeed = () => {
     const token = useSelector((state) => state.user.accessToken)
@@ -49,47 +49,45 @@ export const PostFeed = () => {
     const dispatch = useDispatch()
     const [selectedFilter, setSelectedFilter] = useState('All')
 
-    const [isLoading, setIsLoading] = useState(false)
     const [modalIsOpen, setModalIsOpen] = useState(false)
-    const [searchPosts, setSearchPosts] = useState('')
+    const [search, setSearch] = useState('')
 
     const [selectedPost, setSelectedPost] = useState(null)
     const [editDeleteModalIsOpen, setEditDeleteModalIsOpen] = useState(false)
 
+    //Hook integration
+
+    const {sendRequest, data: userProfileData, loading: loadingUserProfile} = useApiRequest();
+    const {sendRequest: fetchPosts, data: postsData, error: postError, loading: loadingPosts} = useApiRequest();
+    const {sendRequest: filterPosts, data: filteredPosts, loading: loadingFilteredPosts} = useApiRequest();
+    const {sendRequest: searchPosts, data: searchedPosts, loading: loadingSearch} = useApiRequest();
+
     // fetching Post, saving them in the post slice & rendering straigtaway on the page
 
-    useEffect(() => {
-        const fetchData = async () => {
-            setIsLoading(true)
-            console.log(token)
-            if (token) {
-                try {
-                    // fetching User profile
-                    const userProfileResponse = await AxiosMotion.get('/users/me/', {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    })
-                    // dispatching action to store User profile
-                    console.log('response', userProfileResponse)
-                    dispatch(getUserProfileSuccess(userProfileResponse.data))
-                    // fetching Post
-                    const postsResponse = await AxiosMotion.get('/social/Post/', {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    })
 
-                    dispatch(get_posts(postsResponse.data))
-                } catch (error) {
-                    console.error(error)
-                } finally {
-                    setIsLoading(false)
-                }
-            }
+    useEffect(() => {
+        if (token) {
+            sendRequest('GET', 'users/me/', null, false);
         }
-        fetchData()
-    }, [token])
+    }, [token]);
+
+    useEffect(() => {
+        if (userProfileData) {
+            dispatch(getUserProfileSuccess(userProfileData));
+        }
+    }, [userProfileData, dispatch]);
+
+    useEffect(() => {
+        if (token) {
+            fetchPosts('GET', 'social/Post/', null, false);
+        }
+    }, [token]);
+
+    useEffect(() => {
+        if (postsData) {
+            dispatch(get_posts(postsData));
+        }
+    }, [postsData, dispatch]);
 
     // function to convert post creation time (originally looks like this: "2024-05-30T16:57:29.049326+02:00" )
 
@@ -121,56 +119,44 @@ export const PostFeed = () => {
     }
 
     const filterHandler = async (filter) => {
+        setSelectedFilter(filter)
+        let url = `social/Post/${filter}/`
         if (filter === 'All') {
-            filter = ''
+            url = `social/Post/`
         }
-        setIsLoading(true);
-        try {
-            const postsResponse = await AxiosMotion.get(`/social/Post/${filter}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-            console.log('hi', postsResponse.data)
-            dispatch(get_posts(postsResponse.data))
-        } catch (error) {
-            console.log(error.message)
-        } finally {
-            setIsLoading(false); // Set loading state to false
-        }
+        filterPosts('GET', url, null, false)
     }
+
+    useEffect(() => {
+        console.log('filter', filteredPosts)
+        if (filteredPosts) {
+            dispatch(get_posts(filteredPosts));
+        }
+    }, [filteredPosts, postError, dispatch]);
 
     const searchHandler = async (search) => {
-        setIsLoading(true);
-        try {
-            const postsResponse = await AxiosMotion.get(`/social/Post/?search=${search}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-            console.log(postsResponse)
-            dispatch(get_posts(postsResponse.data))
-        } catch (error) {
-            console.log(error.message)
-        } finally {
-            setIsLoading(false); // Set loading state to false
-        }
+        searchPosts('GET', `/social/Post/?search=${search}`, null, false)
 
     }
+    useEffect(() => {
+        if (searchedPosts) {
+            dispatch(get_posts(searchedPosts));
+        }
+    }, [searchedPosts, postError, dispatch]);
 
     return (
         <>
             <PostFeedSearch>
                 <SearchPostFeedWrap>
                     <PostFeedSearchIcon onClick={() => {
-                        searchHandler(searchPosts)
+                        searchHandler(search)
                     }} src={searchIcon}/>
                     <PostFeedSearchInput
                         id="search"
                         type="text"
                         placeholder="Search posts..."
-                        value={searchPosts}
-                        onChange={(e) => setSearchPosts(e.target.value)}/>
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}/>
                 </SearchPostFeedWrap>
 
                 <Fragment>
@@ -178,7 +164,7 @@ export const PostFeed = () => {
                         {filters.map(
                             filter => <PostFeedSearchItem filterActive={selectedFilter === filter} key={filter}
                                                           onClick={() => {
-                                                              setSelectedFilter(filter), filterHandler(filter)
+                                                              filterHandler(filter)
                                                           }}>
                                 {filter}
                             </PostFeedSearchItem>)}
@@ -214,8 +200,8 @@ export const PostFeed = () => {
                         </PostButton>
                     </CreatePostForm>
                 </PostItem>
-                {isLoading && <p>Loading posts...</p>}
-                {posts?.length > 0 &&
+                {loadingFilteredPosts && loadingSearch && loadingPosts && loadingUserProfile && <p>Loading posts...</p>}
+                {Array.isArray(posts) && posts?.length > 0 &&
                     posts.map((post) => (
                         <PostItem key={post.id}>
                             <PostWrapTop>

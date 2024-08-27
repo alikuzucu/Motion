@@ -1,7 +1,6 @@
 import {useDispatch, useSelector} from 'react-redux'
 import FetchUserDetails from '../../components/FetchUserDetails/FetchUserDetails'
 import {useEffect, useState} from 'react'
-import {AxiosMotion} from '../../axios/Axios'
 import {get_posts} from '../../store/slices/PostSlice'
 import avatar from '../../assets/svgs/avatar.svg'
 import {
@@ -23,37 +22,31 @@ import {
 import {PostButtons} from '../../components/Button/Button'
 import menu from '../../assets/svgs/menu.svg'
 import EditDeleteModal from '../../components/EditDeleteModal/EditDeleteModal'
+import useApiRequest from "../../hooks/useApiRequest.jsx";
 
 export const Profiles = () => {
     const posts = useSelector((state) => state.post.posts)
     const token = useSelector((state) => state.user.accessToken)
-    const [isLoading, setIsLoading] = useState(false)
 
     const dispatch = useDispatch()
 
     const [selectedPost, setSelectedPost] = useState(null)
     const [editDeleteModalIsOpen, setEditDeleteModalIsOpen] = useState(false)
 
+    const {sendRequest, data, loading} = useApiRequest();
+
     useEffect(() => {
-        const fetchData = async () => {
-            setIsLoading(true)
             if (token) {
-                try {
-                    const response = await AxiosMotion.get('/social/Post/', {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    })
-                    dispatch(get_posts(response.data))
-                } catch (error) {
-                    console.error(error)
-                } finally {
-                    setIsLoading(false)
-                }
+                sendRequest('GET', 'social/Post/', null, false)
             }
-        }
-        fetchData()
-    }, [token, dispatch])
+        },
+        [token]
+    );
+
+    useEffect(() => {
+        dispatch(get_posts(data))
+        console.log('data', data)
+    }, [data, dispatch]);
 
     function getTimeDifference(createdAt) {
         const now = new Date()
@@ -88,8 +81,8 @@ export const Profiles = () => {
                 <FetchUserDetails/>
             </div>
             <PostFeedProfile>
-                {isLoading && <p>Loading posts...</p>}
-                {posts?.length > 0 &&
+                {loading && <p>Loading posts...</p>}
+                {Array.isArray(posts) && posts?.length > 0 &&
                     posts
                         .filter((element) => element.is_from_logged_in_user === true)
                         .map((post) => (

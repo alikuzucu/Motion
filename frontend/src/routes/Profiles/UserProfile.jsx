@@ -1,8 +1,7 @@
-import {useEffect, useState} from 'react'
+import {useEffect} from 'react'
 import {useDispatch, useSelector} from 'react-redux'
 import {useParams} from 'react-router-dom'
 import {get_posts} from '../../store/slices/PostSlice'
-import {AxiosMotion} from '../../axios/Axios'
 import {
     PostFeedProfile,
     ProfileContainer,
@@ -22,40 +21,32 @@ import {
 import {PostButtons} from '../../components/Button/Button'
 import avatar from '../../assets/svgs/avatar.svg'
 import FetchOtherUserDetails from '../../components/FetchUserDetails/FetchOtherUserDetails'
+import useApiRequest from "../../hooks/useApiRequest.jsx";
 
 const UserProfile = () => {
     const {userId} = useParams()
     const posts = useSelector((state) => state.post.posts)
     console.log('🚀 ~ UserProfile ~ Post:', posts)
     const token = useSelector((state) => state.user.accessToken)
-    const [isLoading, setIsLoading] = useState(false)
 
     const dispatch = useDispatch()
+
+    const {sendRequest, data, loading} = useApiRequest();
 
     useEffect(() => {
         window.scrollTo(0, 0)
     }, [])
 
     useEffect(() => {
-        const fetchData = async () => {
-            setIsLoading(true)
-            if (token) {
-                try {
-                    const response = await AxiosMotion.get('/social/Post/', {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    })
-                    dispatch(get_posts(response.data))
-                } catch (error) {
-                    console.error(error)
-                } finally {
-                    setIsLoading(false)
-                }
-            }
+        if (token) {
+            sendRequest('GET', 'social/Post/', null, false)
         }
-        fetchData()
     }, [token, dispatch])
+
+    useEffect(() => {
+        dispatch(get_posts(data))
+        console.log('data', data)
+    }, [data, dispatch]);
 
     function getTimeDifference(createdAt) {
         const now = new Date()
@@ -85,7 +76,7 @@ const UserProfile = () => {
                 <FetchOtherUserDetails userId={userId}/>
             </div>
             <PostFeedProfile>
-                {isLoading && <p>Loading posts...</p>}
+                {loading && <p>Loading posts...</p>}
                 {posts?.length > 0 &&
                     posts
                         .filter((element) => {

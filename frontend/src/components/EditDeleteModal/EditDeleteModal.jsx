@@ -21,6 +21,7 @@ import {
   EditPostImage,
   EditPostInput,
 } from './EditDeleteModal.styled'
+import useApiRequest from "../../hooks/useApiRequest.jsx";
 
 const customStyles = {
   content: {
@@ -52,24 +53,15 @@ const EditDeleteModal = ({ isOpen, onRequestClose, post }) => {
   const userProfile = useSelector((state) => state.userProfile.user)
 
   const dispatch = useDispatch()
+  const {sendRequest, data} = useApiRequest();
 
   useEffect(() => {
     const fetchData = async () => {
       if (token) {
-        try {
-          // fetching User profile
-          const userProfileResponse = await AxiosMotion.get('/users/me/', {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
-          // dispatching action to store User profile
-          dispatch(getUserProfileSuccess(userProfileResponse.data))
-        } catch (error) {
-          console.error(error)
+        sendRequest('GET', 'social/Post/', null, false)
+          dispatch(getUserProfileSuccess(data))
         }
       }
-    }
     fetchData()
   }, [token, dispatch])
 

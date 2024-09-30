@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { AxiosMotion } from '../../axios/Axios'
 
 import {
   LoginRight,
@@ -14,30 +13,23 @@ import {
   SignInError,
 } from '../../components/LoginLayout/LoginLayout.styled'
 import { useNavigate } from 'react-router-dom'
+import useApiRequest from "../../hooks/useApiRequest.jsx";
 
 const SignUpEmail = () => {
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
-  const [response, setResponse] = useState('')
 
   const navigate = useNavigate()
+  const {sendRequest, data} = useApiRequest();
 
   const submitHandler = async (e) => {
     e.preventDefault()
     setError('')
-    try {
-      // On submit with the email value we post to motion backend for registiration
-      const response = await AxiosMotion.post('/auth/registration/', {
-        email: email,
-      })
-      setResponse(response) //If the response is positive we set it in useState so that page renders again
-    } catch (error) {
-      setError('Email Failed')
-    }
+    sendRequest('POST', 'auth/registration/', {email:email}, true)
   }
-  console.log(response)
+  console.log(data)
 
-  if (response) {
+  if (data) {
     //If the response is positive i called signup component for now this process should be changed
     navigate('/signup/success')
   } else {

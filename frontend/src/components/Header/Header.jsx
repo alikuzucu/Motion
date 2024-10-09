@@ -15,8 +15,8 @@ import {
 import HeaderDropdown from '../HeaderDropDown/HeaderDropDown'
 import { UserMenuDropdown } from '../UserMenuDropdown/UserMenuDropdown'
 import { useEffect, useState } from 'react'
-import { AxiosMotion } from '../../axios/Axios'
 import { useNavigate } from 'react-router-dom'
+import useApiRequest from "../../hooks/useApiRequest.jsx";
 
 const Header = () => {
   const navigate = useNavigate()
@@ -24,17 +24,14 @@ const Header = () => {
   const [notifications, setNotifications] = useState([])
   console.log('🚀 ~ Header ~ notifications:', notifications)
   const token = localStorage.getItem('accessToken')
+  const {sendRequest, data} = useApiRequest();
 
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await AxiosMotion.get('/social/friends/requests/', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        console.log(response)
-        setNotifications(response.data)
+        sendRequest('GET', '/social/friends/requests/', null, false)
+        console.log(data)
+        setNotifications(data)
       } catch (error) {
         console.error('Failed to fetch notifications', error)
       }

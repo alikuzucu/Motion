@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   get_allUsers,
@@ -22,13 +22,14 @@ import {
   UserPicture,
 } from '../../components/FindFriends/FindFriends.styled'
 import { Link } from 'react-router-dom'
+import useApiRequest from "../../hooks/useApiRequest.jsx";
 
 export const FindFriends = () => {
   const token = useSelector((state) => state.user.accessToken)
   const allUsers = useSelector((state) => state.allUser.allUsers)
-  const [isLoading, setIsLoading] = useState(false)
 
   const dispatch = useDispatch()
+  const {sendRequest, data, loading} = useApiRequest();
 
   const shuffleArray = (array) => {
     for (let i = array.length - 1; i > 0; i--) {
@@ -40,21 +41,14 @@ export const FindFriends = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true)
       if (token) {
         try {
           const offset = Math.floor(Math.random() * 100)
-          const response = await AxiosMotion.get(`/users/?offset=${offset}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
-          const shuffledUsers = shuffleArray(response.data)
+          sendRequest('GET', `/users/?offset=${offset}`, null, false)
+          const shuffledUsers = shuffleArray(data)
           dispatch(get_allUsers(shuffledUsers))
         } catch (error) {
           console.log(error)
-        } finally {
-          setIsLoading(false)
         }
       }
     }
@@ -129,7 +123,7 @@ export const FindFriends = () => {
 
   return (
     <FriendsContainer>
-      {isLoading && <p>Loading users...</p>}
+      {loading && <p>Loading users...</p>}
       {allUsers &&
         allUsers.map((allUser) => (
           <FriendsCard key={allUser.id}>
@@ -173,7 +167,7 @@ export const FindFriends = () => {
               )}
           </FriendsCard>
         ))}
-      {allUsers?.length === 0 && !isLoading && <p>No users found.</p>}
+      {allUsers?.length === 0 && !loading && <p>No users found.</p>}
     </FriendsContainer>
   )
 }

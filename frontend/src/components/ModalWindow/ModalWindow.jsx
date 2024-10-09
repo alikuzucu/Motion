@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import Modal from 'react-modal'
 import { useDispatch, useSelector } from 'react-redux'
-import { AxiosMotion } from '../../axios/Axios'
 import { create_post, get_posts } from '../../store/slices/PostSlice'
 import {
   CreatePostForm,
@@ -21,6 +20,7 @@ import {
   ModalTextInput,
   ModalContainerBottom,
 } from './ModalWindow.styled.jsx'
+import useApiRequest from "../../hooks/useApiRequest.jsx";
 
 const customStyles = {
   content: {
@@ -51,6 +51,7 @@ export const ModalWindow = ({ isOpen, onRequestClose }) => {
   const userProfile = useSelector((state) => state.userProfile.user)
 
   const dispatch = useDispatch()
+  const {sendRequest, data} = useApiRequest();
 
   //added newPost stateContent to manage setNewPostContent
   const [newPostContent, setNewPostContent] = useState('')
@@ -68,13 +69,9 @@ export const ModalWindow = ({ isOpen, onRequestClose }) => {
       if (token) {
         try {
           // fetching User profile
-          const userProfileResponse = await AxiosMotion.get('/users/me/', {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
+          sendRequest('GET', '/users/me/', null, false)
           // dispatching action to store User profile
-          dispatch(getUserProfileSuccess(userProfileResponse.data))
+          dispatch(getUserProfileSuccess(data))
         } catch (error) {
           console.error(error)
         }
@@ -97,13 +94,9 @@ export const ModalWindow = ({ isOpen, onRequestClose }) => {
 
     if (newPostContent.trim() && token) {
       try {
-        const response = await AxiosMotion.post('/social/Post/', formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        dispatch(create_post(response.data))
-        console.log(response.data)
+        sendRequest('POST', '/social/Post/', formData, true)
+        dispatch(create_post(data))
+        console.log(data)
         onRequestClose() // Close the modal after successful post creation
 
         // refetching Post to add the new one on the feed
@@ -111,13 +104,9 @@ export const ModalWindow = ({ isOpen, onRequestClose }) => {
           console.log('token', Boolean(token))
           if (token) {
             try {
-              const response = await AxiosMotion.get('/social/Post/', {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              })
+              sendRequest('GET', '/social/Post/', null, false)
 
-              dispatch(get_posts(response.data))
+              dispatch(get_posts(data))
             } catch (error) {
               console.error(error)
             }
